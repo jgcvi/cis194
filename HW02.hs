@@ -30,7 +30,7 @@ exactMatches code1 code2 = length $ filter (\c -> (fst c) == (snd c)) (zip code1
 
 -- For each peg in xs, count how many times is occurs in ys
 countColors :: Code -> [Int]
-countColors = map (+(-1)) . map length . group . sort . (++) [Red,Green,Blue,Yellow,Orange,Purple]
+countColors = map (+(-1)) . map length . group . sort . (++) colors
 
 -- Count number of matches between the actual code and the guess
 matches :: Code -> Code -> Int
@@ -60,17 +60,15 @@ filterCodes move codes = filter (isConsistent move) codes
 -- Exercise 6 -----------------------------------------
 
 allCodes :: Int -> [Code]
-allCodes 0 = []
-allCodes 1 = map (:[]) allPegs
-allCodes n = appendAll $ allCodes (n-1)
-
-allPegs :: Code
-allPegs = [Red,Green,Blue,Yellow,Orange,Purple]
+allCodes n 
+	| n < 1 = []
+	| n == 1 = map (:[]) colors
+	| otherwise = appendAll $ allCodes (n-1)
 
 
 appendAll :: [Code] -> [Code]
 appendAll [] = []
-appendAll (h:t) = map (:h) allPegs ++ (appendAll t)
+appendAll (h:t) = map (:h) colors ++ (appendAll t)
 
 -- Exercise 7 -----------------------------------------
 
@@ -80,9 +78,11 @@ solve x = solveHelp x (getMove x (head allCode)) (tail allCode) where
 
 solveHelp :: Code -> Move -> [Code] -> [Move]
 solveHelp code x@(Move guess _ _)  allCode
-	| code == guess = [getMove code guess]
-	| otherwise = (getMove code guess):(solveHelp code (getMove code (head redux)) (tail redux))
-	where redux = filterCodes x allCode
+	| code == guess = [move]
+	| otherwise = move:(solveHelp code (getMove code (head redux)) (tail redux))
+	where 
+		redux = filterCodes x allCode
+		move = getMove code guess
 
 -- Bonus ----------------------------------------------
 
